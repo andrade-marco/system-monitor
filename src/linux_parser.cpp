@@ -4,11 +4,57 @@
 #include <vector>
 
 #include "linux_parser.h"
+#include <numeric>
 
 using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
+
+
+// Utils
+int LinuxParser::ProcessReader(std::string targetLabel) {
+  int processes {};
+
+  std::ifstream stream(kProcDirectory + kStatFilename);
+  if (stream.is_open()) {
+    std::string line {};
+    while (std::getline(stream, line)) {
+      std::istringstream iss(line);
+      std::string label {};
+      iss >> label;
+      if (label == targetLabel) {
+        iss >> processes;
+      }
+    }
+  }
+
+  return processes;
+}
+
+vector<unsigned long> LinuxParser::JiffiesReader(const std::string jiffiesType = "") {
+  vector<unsigned long> jiffies {};
+
+  std::ifstream stream(kProcDirectory + kStatFilename);
+  if (stream.is_open()) {
+
+    // Get first line - aggregate of CPU clock times
+    std::string line {};
+    std::getline(stream, line);
+    std::istringstream cpuStats(line);
+
+    std::string label {};
+    cpuStats >> label; // Remove "cpu" label
+
+    unsigned long stat {};
+    while (cpuStats) {
+      cpuStats >> stat;
+      jiffies.push_back(stat);
+    }
+  }
+
+  return jiffies;
+}
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -66,33 +112,70 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+float LinuxParser::MemoryUtilization() {
+  std::ifstream stream(kProcDirectory + kMeminfoFilename);
+  unsigned long totalMem {};
+  unsigned long freeMem {};
 
-// TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
+  if (stream.is_open()) {
+    // Loop through the contents of the file; safer this way
+    // in case order of items change
+    std::string memType {};
+    while(stream >> memType) {
+      if (memType == "MemTotal:") {
+        stream >> totalMem;
+      } else if (memType == "MemFree:") {
+        stream >> freeMem;
+      }
+    }
+  }
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+  return (totalMem - freeMem) / totalMem;
+}
+
+long LinuxParser::UpTime() {
+  unsigned long uptime {};
+  std::ifstream stream(kProcDirectory + kUptimeFilename);
+  if (stream.is_open()) {
+    stream >> uptime;
+  }
+
+  return uptime;
+}
+
+long LinuxParser::Jiffies() {
+  auto jiffies = JiffiesReader();
+  return std::accumulate(jiffies.begin(), jiffies.end(), 0);
+}
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() {
+  auto jiffies = JiffiesReader();
+  jiffies[IDLE_IDX] = jiffies[IOWAIT_IDX] = 0; // Remove idle and iowait
+  return std::accumulate(jiffies.begin(), jiffies.end(), 0);
+}
 
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+long LinuxParser::IdleJiffies() {
+  auto jiffies = JiffiesReader();
+  return jiffies[IDLE_IDX] + jiffies[IOWAIT_IDX];
+}
 
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+// Change signature to long to make it easier to reuse function
+// and simplify percentage calculation in Processor
+vector<unsigned long> LinuxParser::CpuUtilization() {
+  return JiffiesReader();
+}
 
-// TODO: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { return 0; }
+int LinuxParser::TotalProcesses() {
+  return ProcessReader("processes");
+}
 
-// TODO: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { return 0; }
+int LinuxParser::RunningProcesses() {
+  return ProcessReader("procs_running");
+}
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function

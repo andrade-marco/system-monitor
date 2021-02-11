@@ -4,8 +4,13 @@
 #include <fstream>
 #include <regex>
 #include <string>
+#include <vector>
 
 namespace LinuxParser {
+// const
+constexpr int IDLE_IDX {4};
+constexpr int IOWAIT_IDX {5};
+
 // Paths
 const std::string kProcDirectory{"/proc/"};
 const std::string kCmdlineFilename{"/cmdline"};
@@ -17,6 +22,10 @@ const std::string kMeminfoFilename{"/meminfo"};
 const std::string kVersionFilename{"/version"};
 const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
+
+// Utils
+int ProcessReader(std::string targetLabel);
+std::vector<unsigned long> JiffiesReader(const std::string jiffiesType);
 
 // System
 float MemoryUtilization();
@@ -40,7 +49,10 @@ enum CPUStates {
   kGuest_,
   kGuestNice_
 };
-std::vector<std::string> CpuUtilization();
+
+// Change signature to long to make it easier to reuse function
+// and simplify percentage calculation in Processor
+std::vector<unsigned long> CpuUtilization();
 long Jiffies();
 long ActiveJiffies();
 long ActiveJiffies(int pid);
