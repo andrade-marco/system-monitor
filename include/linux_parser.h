@@ -26,6 +26,7 @@ const std::string kPasswordPath{"/etc/passwd"};
 // Utils
 int ProcessReader(std::string targetLabel);
 std::vector<unsigned long> JiffiesReader(const std::string jiffiesType);
+std::string GetPath(int pid, std::string suffix);
 
 // System
 float MemoryUtilization();
