@@ -1,10 +1,12 @@
+#include "linux_parser.h"
+
 #include <dirent.h>
 #include <unistd.h>
+
+#include <numeric>
+#include <sstream>
 #include <string>
 #include <vector>
-
-#include "linux_parser.h"
-#include <numeric>
 
 using std::stof;
 using std::string;
@@ -32,7 +34,7 @@ int LinuxParser::ProcessReader(std::string targetLabel) {
   return processes;
 }
 
-vector<unsigned long> LinuxParser::JiffiesReader(const std::string jiffiesType = "") {
+vector<unsigned long> LinuxParser::JiffiesReader() {
   vector<unsigned long> jiffies {};
 
   std::ifstream stream(kProcDirectory + kStatFilename);
@@ -152,7 +154,7 @@ long LinuxParser::Jiffies() {
   return std::accumulate(jiffies.begin(), jiffies.end(), 0);
 }
 
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) {
+long LinuxParser::ActiveJiffies(int pid) {
   vector<long> jiffies {};
   std::ifstream stream(GetPath(pid, kStatFilename));
   if (stream.is_open()) {
@@ -239,7 +241,7 @@ string LinuxParser::Uid(int pid) {
   return uid;
 }
 
-string LinuxParser::User(int pid[[maybe_unused]]) {
+string LinuxParser::User(int pid) {
   string line {};
   string user {};
   string foundId {};
