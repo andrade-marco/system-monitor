@@ -18,9 +18,9 @@ class Process {
   bool operator<(Process const& a) const;
 
  private:
-  const int pid_;
-  const std::string user_;
-  const std::string command_;
+  int pid_;
+  std::string user_;
+  std::string command_;
 };
 
 #endif
