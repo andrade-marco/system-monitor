@@ -14,6 +14,17 @@ using std::size_t;
 using std::string;
 using std::vector;
 
+System::System() {
+  vector<Process> processes {};
+  auto pids = LinuxParser::Pids();
+  for (auto pid:pids) {
+    processes.push_back(Process(pid));
+  }
+
+  this->processes_ = processes;
+  this->cpu_ = Processor();
+}
+
 Processor& System::Cpu() { return this->cpu_; }
 
 vector<Process>& System::Processes() { return this->processes_; }

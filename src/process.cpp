@@ -14,7 +14,7 @@ using std::vector;
 // Constructor
 Process::Process(int pid): pid{pid} {};
 
-int Process::Pid() {
+int Process::Pid() const {
   return this->pid;
 }
 
@@ -24,19 +24,19 @@ float Process::CpuUtilization() const {
   return process_active / system_active;
 }
 
-string Process::Command() {
+string Process::Command() const {
     return LinuxParser::Command(this->Pid());
 }
 
-string Process::Ram() {
+string Process::Ram() const {
   return LinuxParser::Ram(this->Pid());
 }
 
-string Process::User() {
+string Process::User() const {
   return LinuxParser::User(this->Pid());
 }
 
-long int Process::UpTime() {
+long int Process::UpTime() const {
   return LinuxParser::UpTime(this->Pid());
 }
 
