@@ -12,11 +12,16 @@ using std::to_string;
 using std::vector;
 
 // Constructor
-Process::Process(int pid): pid{pid} {};
+Process::Process(int pid)
+    : pid_{pid},
+      user_{LinuxParser::User(pid)},
+      command_{LinuxParser::Command(pid)} {};
 
-int Process::Pid() const {
-  return this->pid;
-}
+int Process::Pid() const { return this->pid_;}
+
+string Process::User() const {return this->user_;}
+
+string Process::Command() const {return this->command_;}
 
 float Process::CpuUtilization() const {
   auto process_active = LinuxParser::ActiveJiffies(this->Pid());
@@ -24,16 +29,8 @@ float Process::CpuUtilization() const {
   return process_active / system_active;
 }
 
-string Process::Command() const {
-    return LinuxParser::Command(this->Pid());
-}
-
 string Process::Ram() const {
   return LinuxParser::Ram(this->Pid());
-}
-
-string Process::User() const {
-  return LinuxParser::User(this->Pid());
 }
 
 long int Process::UpTime() const {

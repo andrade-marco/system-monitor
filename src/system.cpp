@@ -14,7 +14,11 @@ using std::size_t;
 using std::string;
 using std::vector;
 
-System::System() {
+System::System()
+    : operatingSystem_{LinuxParser::OperatingSystem()},
+      kernel_{LinuxParser::Kernel()},
+      cpu_{Processor()}
+{
   vector<Process> processes {};
   auto pids = LinuxParser::Pids();
   for (auto pid:pids) {
@@ -22,23 +26,18 @@ System::System() {
   }
 
   this->processes_ = processes;
-  this->cpu_ = Processor();
 }
 
 Processor& System::Cpu() { return this->cpu_; }
 
 vector<Process>& System::Processes() { return this->processes_; }
 
-std::string System::Kernel() {
-  return LinuxParser::Kernel();
-}
+std::string System::Kernel() { return this->kernel_; }
+
+std::string System::OperatingSystem() { return this->operatingSystem_; }
 
 float System::MemoryUtilization() {
   return LinuxParser::MemoryUtilization();
-}
-
-std::string System::OperatingSystem() {
-  return LinuxParser::OperatingSystem();
 }
 
 int System::RunningProcesses() {
