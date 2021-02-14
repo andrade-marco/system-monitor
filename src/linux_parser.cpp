@@ -160,12 +160,12 @@ long LinuxParser::ActiveJiffies(int pid) {
   if (stream.is_open()) {
     size_t i {1};
     while (i <= 17) {
-      long val {};
+      string val {};
       stream >> val;
 
       // Values in place 14 to 17 represent the target values
       if (i >= 14 && i <= 17) {
-        jiffies.push_back(val);
+        jiffies.push_back(std::stol(val));
       }
 
       i++;
@@ -269,7 +269,7 @@ string LinuxParser::User(int pid) {
 
 long LinuxParser::UpTime(int pid) {
   constexpr int index {22};
-  long uptime {};
+  string uptime {};
 
   std::ifstream stream(GetPath(pid, kStatFilename));
   if (stream.is_open()) {
@@ -283,5 +283,5 @@ long LinuxParser::UpTime(int pid) {
     }
   }
 
-  return uptime / sysconf(_SC_CLK_TCK);
+  return std::stol(uptime) / sysconf(_SC_CLK_TCK);
 }
