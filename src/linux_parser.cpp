@@ -268,20 +268,22 @@ string LinuxParser::User(int pid) {
 }
 
 long LinuxParser::UpTime(int pid) {
-  constexpr int index {22};
-  string uptime {};
-
+  unsigned long uptime {};
   std::ifstream stream(GetPath(pid, kStatFilename));
   if (stream.is_open()) {
     size_t i {1};
     string line {};
+    string token {};
     std::getline(stream, line);
     std::istringstream iss(line);
-    while (i <= index) {
-      iss >> uptime;
+    while (iss >> token) {
+      if (i == 22) {
+        uptime = UpTime() - std::stol(token) / sysconf(_SC_CLK_TCK);
+        break;
+      }
       i++;
     }
   }
 
-  return std::stol(uptime) / sysconf(_SC_CLK_TCK);
+  return uptime;
 }
