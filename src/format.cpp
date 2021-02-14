@@ -5,6 +5,11 @@
 using std::string;
 using std::to_string;
 
+string Format::FormatDigit(int num) {
+  if (num % 10 == num) return "0" + to_string(num);
+  return to_string(num);
+}
+
 string Format::ElapsedTime(long seconds) {
   constexpr int secInHour = 3600;
   constexpr int secInMin = 60;
@@ -14,5 +19,5 @@ string Format::ElapsedTime(long seconds) {
   int minutes = seconds / secInMin;
   seconds -= minutes * secInMin;
 
-  return to_string(hours) + ":" + to_string(minutes) + ":" + to_string(seconds);
+  return FormatDigit(hours) + ":" + FormatDigit(minutes) + ":" + FormatDigit(seconds);
 }

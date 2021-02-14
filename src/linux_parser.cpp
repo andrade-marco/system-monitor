@@ -87,13 +87,13 @@ string LinuxParser::OperatingSystem() {
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() {
-  string os, kernel;
+  string os, version, kernel;
   string line;
   std::ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    linestream >> os >> kernel;
+    linestream >> os >> version >> kernel;
   }
   return kernel;
 }
@@ -136,7 +136,7 @@ float LinuxParser::MemoryUtilization() {
     }
   }
 
-  return (totalMem - freeMem) / totalMem;
+  return (float)(totalMem - freeMem) / (float)totalMem;
 }
 
 long LinuxParser::UpTime() {
@@ -212,18 +212,18 @@ string LinuxParser::Command(int pid) {
 
 string LinuxParser::Ram(int pid) {
   std::ifstream stream(GetPath(pid, kStatusFilename));
-  string ram {};
-  string unit {};
+  unsigned long ram {};
   if (stream.is_open()) {
     string label {};
     while(stream >> label) {
       if (label == "VmSize:") {
-        stream >> ram >> unit;
+        stream >> ram;
       }
     }
   }
 
-  return ram + unit;
+  int ramMb = ram / 1024;
+  return to_string(ramMb);
 }
 
 string LinuxParser::Uid(int pid) {
@@ -232,7 +232,7 @@ string LinuxParser::Uid(int pid) {
   if (stream.is_open()) {
     string label {};
     while(stream >> label) {
-      if (label == "VmSize:") {
+      if (label == "Uid:") {
         stream >> uid;
       }
     }
@@ -279,5 +279,5 @@ long LinuxParser::UpTime(int pid) {
     }
   }
 
-  return uptime;
+  return uptime / sysconf(_SC_CLK_TCK);
 }

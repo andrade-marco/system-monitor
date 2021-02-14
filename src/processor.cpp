@@ -5,5 +5,6 @@ float Processor::Utilization() {
   auto idle = LinuxParser::IdleJiffies();
   auto active = LinuxParser::ActiveJiffies();
 
-  return active / (active + idle);
+  float utilization = (float)active / (float)(active + idle);
+  return utilization;
 }

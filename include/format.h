@@ -4,6 +4,7 @@
 #include <string>
 
 namespace Format {
+std::string FormatDigit(int num);
 std::string ElapsedTime(long times);
 }
 

@@ -26,7 +26,7 @@ string Process::Command() const {return this->command_;}
 float Process::CpuUtilization() const {
   auto process_active = LinuxParser::ActiveJiffies(this->Pid());
   auto system_active = LinuxParser::ActiveJiffies();
-  return process_active / system_active;
+  return (float)process_active / (float)system_active;
 }
 
 string Process::Ram() const {
